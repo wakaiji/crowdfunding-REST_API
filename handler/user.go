@@ -3,6 +3,7 @@ package handler
 import (
 	"bwastartup/helper"
 	"bwastartup/user"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -104,5 +105,44 @@ func (h *userHandler) CheckEmailAvailibility(c *gin.Context) {
 	}
 
 	webResponse := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, webResponse)
+}
+
+func (h *userHandler) UploadAvatar(c *gin.Context) {
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+
+		webResponse := helper.APIResponse("Failed to upload avatar", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	//Nanti diganti jadi JWT
+	userID := 7
+
+	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)
+
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+
+		webResponse := helper.APIResponse("Failed to upload avatar", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	_, err = h.service.SaveAvatar(userID, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+
+		webResponse := helper.APIResponse("Failed to upload avatar", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	data := gin.H{"is_uploaded": true}
+
+	webResponse := helper.APIResponse("Success to upload avatar", http.StatusOK, "succes", data)
 	c.JSON(http.StatusOK, webResponse)
 }
