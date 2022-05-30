@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bwastartup/auth"
 	"bwastartup/helper"
 	"bwastartup/user"
 	"fmt"
@@ -10,12 +11,14 @@ import (
 )
 
 type userHandler struct {
-	service user.Service
+	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(service user.Service) *userHandler {
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
 	return &userHandler{
-		service: service,
+		userService: userService,
+		authService: authService,
 	}
 }
 
@@ -32,14 +35,21 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	newUser, err := h.service.RegisterUser(input)
+	newUser, err := h.userService.RegisterUser(input)
 	if err != nil {
 		webResponse := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, webResponse)
 		return
 	}
 
-	formatter := user.FormatUser(newUser, "tokentokentoken")
+	token, err := h.authService.GenerateToken(newUser.ID)
+	if err != nil {
+		webResponse := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	formatter := user.FormatUser(newUser, token)
 
 	webResponse := helper.APIResponse("Success Register", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, webResponse)
@@ -58,7 +68,7 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	userLogin, err := h.service.LoginUser(input)
+	userLogin, err := h.userService.LoginUser(input)
 	if err != nil {
 		errorMessage := gin.H{"error": err.Error()}
 
@@ -67,9 +77,16 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(userLogin, "tokentokentoken")
+	token, err := h.authService.GenerateToken(userLogin.ID)
+	if err != nil {
+		webResponse := helper.APIResponse("Login failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
 
-	webResponse := helper.APIResponse("Success Register", http.StatusOK, "success", formatter)
+	formatter := user.FormatUser(userLogin, token)
+
+	webResponse := helper.APIResponse("Login Success", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, webResponse)
 }
 
@@ -86,7 +103,7 @@ func (h *userHandler) CheckEmailAvailibility(c *gin.Context) {
 		return
 	}
 
-	isEmailAvailable, err := h.service.IsEmailAvailable(input)
+	isEmailAvailable, err := h.userService.IsEmailAvailable(input)
 	if err != nil {
 		errorMessage := gin.H{"errors": "Server error"}
 
@@ -132,7 +149,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	_, err = h.service.SaveAvatar(userID, path)
+	_, err = h.userService.SaveAvatar(userID, path)
 	if err != nil {
 		data := gin.H{"is_uploaded": false}
 
