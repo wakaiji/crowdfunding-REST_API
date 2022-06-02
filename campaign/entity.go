@@ -1,6 +1,9 @@
 package campaign
 
-import "time"
+import (
+	"bwastartup/user"
+	"time"
+)
 
 type Campaign struct {
 	ID               int       `json:"id"`
@@ -16,6 +19,7 @@ type Campaign struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 	CampaignImages   []CampaignImage
+	User             user.User
 }
 
 type CampaignImage struct {
