@@ -1,0 +1,16 @@
+{{ define "content" }}
+<h2 class="mb-4">Edit New User</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="/users/avatar/{{ .ID }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="file" name="avatar" class="form-control" required>
+            </div>
+
+            <div class="">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{{ end }}

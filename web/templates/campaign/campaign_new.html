@@ -1,0 +1,63 @@
+{{ define "content"}}
+<h2 class="mb-4">Create New Campaign</h2>
+
+{{ if .Error }}
+<div class="alert alert-danger">
+    {{ .Error }}
+</div>
+{{end}}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="/campaigns" method="POST">
+            <div class="form-group">
+                <label for="name">User</label>
+                <select name="user_id" class="form-control">
+                    <option value="">Select User</option>
+                    {{ range .Users }}
+                    {{ if eq .ID $.UserID }}
+                    <option value="{{ .ID }}" selected>{{ .Name }}</option>
+                    {{ else }}
+                    <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                    {{ end }}
+                </select>
+
+
+            </div>
+            <div class=" form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" placeholder="Enter name" class="form-control" value="{{ .Name }}"
+                    required />
+            </div>
+            <div class=" form-group">
+                <label for="name">Short Description</label>
+                <input type="text" name="short_description" placeholder="Enter short description" class="form-control"
+                    value="{{ .ShortDescription }}" required />
+            </div>
+            <div class=" form-group">
+                <label for="name">Description</label>
+                <textarea class="form-control" name="description" rows="10">{{ .Description }}</textarea>
+            </div>
+
+            <div class=" form-group">
+                <label for="goal_amount">Goal Amount</label>
+                <input type="number" name="goal_amount" placeholder="Enter goal amount" class="form-control" min="0"
+                    value="{{ .GoalAmount }}" required />
+            </div>
+
+            <div class=" form-group">
+                <label for="name">Perks</label>
+                <input type="text" name="perks" placeholder="Enter perks (comma separated)" class="form-control"
+                    value="{{ .Perks }}" required />
+            </div>
+
+
+            <div class="">
+                <button type=" submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{end}}
