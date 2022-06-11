@@ -22,8 +22,8 @@
                 {{ range .campaigns }}
                 <tr>
                     <td>
-                        {{ if .CampaignImage }}
-                        <img class="img-fluid img-thumbnail" src="{{ (index .CampaignImage 0).FileName }}" width='60' />
+                        {{ if .CampaignImages }}
+                        <img class="img-fluid img-thumbnail" src="{{ (index .CampaignImages 0).FileName }}" width='60' />
                         {{ end }}
                     </td>
                     <td>{{ .Name }}</td>
